@@ -79,7 +79,7 @@ static void BASIC_TIM_Mode_Config(void)
     TIM_TimeBaseStructure.TIM_CounterMode = TIM_CounterMode_Up; 
 		
 	// 重复计数器的值，基本定时器没有，不用管
-	//TIM_TimeBaseStructure.TIM_RepetitionCounter=0;
+	TIM_TimeBaseStructure.TIM_RepetitionCounter = 0;
 	
 	// 初始化定时器
     TIM_TimeBaseInit(BASIC_TIM, &TIM_TimeBaseStructure);

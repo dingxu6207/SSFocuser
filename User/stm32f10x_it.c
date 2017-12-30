@@ -29,7 +29,7 @@
 #include "bsp_usart.h"
 #include "bsp_TiMbase.h"
 #include "stdbool.h"
-
+#include "bsp_led.h"
 //extern volatile uint32_t time;
 extern bool bIsMoving;	           
 extern bool bIncreCount;            
@@ -150,6 +150,7 @@ void  BASIC_TIM_IRQHandler (void)
 {
 	if ( TIM_GetITStatus( BASIC_TIM, TIM_IT_Update) != RESET ) 
 	{	
+		LED3_TOGGLE;
 		
 		if ((bIsMoving) && (bIncreCount) )
 		{
@@ -159,7 +160,9 @@ void  BASIC_TIM_IRQHandler (void)
 		{
 			iStepCount--;
 		}
-		TIM_ClearITPendingBit(BASIC_TIM , TIM_FLAG_Update);  		 
+		TIM_ClearITPendingBit(BASIC_TIM , TIM_FLAG_Update); 
+
+        
 	}		 	
 }
 
