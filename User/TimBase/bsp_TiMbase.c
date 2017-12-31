@@ -135,7 +135,7 @@ void ControlMotor(FunctionalState NewState)
     TIM_Cmd(BASIC_TIM, DISABLE);
 		TIM_CtrlPWMOutputs(BASIC_TIM, DISABLE); //禁止输出
 		GPIO_SetBits(LED5_GPIO_PORT, LED5_GPIO_PIN); //DRV8825使能信号
-		printf("TIM is disable!\n");
+		//printf("TIM is disable!\n");
 	}
 	else
 	{
@@ -143,7 +143,7 @@ void ControlMotor(FunctionalState NewState)
     TIM_Cmd(BASIC_TIM, ENABLE);
 		TIM_CtrlPWMOutputs(BASIC_TIM, ENABLE); //输出	
 		GPIO_ResetBits(LED5_GPIO_PORT, LED5_GPIO_PIN); //DRV8825使能信号
-		printf("TIM is able!\n");
+		//printf("TIM is able!\n");
 	}
 }
 

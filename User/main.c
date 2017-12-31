@@ -28,16 +28,16 @@ typedef union//unionÖ»ÄÜ¶ÔµÚÒ»¸ö±äÁ¿³õÊ¼»¯
 {
     struct
     {
-      bool  Reverse;
+      u8    Reverse;
 			u8    Division;
 			u16   Speed;
 			int   Counter;
-			char  DeviceName[10];   
+			char  DeviceName[12];   
     } CfgData;
 		u32 SaveArray[5];
 }UnionData; 
 
-UnionData UD;// {0,0,32,32,0,"SSFocuser"};
+UnionData UD;
 extern u8 flagrun;          //´®¿Ú½ÓÊÕ±êÖ¾
 extern u8 blurunflag;       //À¶ÑÀ½ÓÊÕ±êÖ¾
 bool bReverse = false;      //µç»úÊÇ·ñ·´Ïò
@@ -45,29 +45,21 @@ bool bRisingEdge = false;   //ÊÇ·ñÎªÉÏÉýÑØ
 bool bTempAvail=false;      //ÎÂ¶ÈÊÇ·ñ¿ÉÓÃ
 bool bIsMoving = false;	    //ÔË¶¯×´Ì¬±êÖ¾true-stop,false-move
 bool bIncreCount = true;    //ÊÇ·ñµÝÔö¼ÆÊýtrue-µÝÔö¼ÆÊý false-µÝ¼õ¼ÆÊý
-//bool bMicroStep=false;    //Ï¸·ÖÊÇ·ñ¿ÉÓÃMicro Step Mode
-bool bAccFlag = false;
-//bool bSavePos = false;
 
-volatile u32 time = 0;      //¼ÆÊ±±äÁ¿ 
-
-char buffer[10];    				//Éè±¸Ãû
-char *pEquipment = "S2Focuser#";
+char *pEquipment = "SS Focuser";
 char ReplyBuff[256] = {0};  //»Ø¸´×Ö·û´®
 u8  uMoveState = 0;         //ÔË¶¯×´Ì¬0-Idle,1-Start Move,2-Stop Move,3-Slew
 u8  uSubdivision = 0;       //²½½øµç»úÏ¸·Ö
-u16 uSpeed  = 32 ;		    	//µç»ú×ª¶¯ËÙ¶È
+u16 uSpeed  = 25 ;		    	//µç»ú×ª¶¯ËÙ¶È
+u16 uSpeedTmp  = 1 ;
 
 int iStepCount = 0;         //µ±Ç°²½Êý
 int iStepCmd = 0;           //ÃüÁî²½Êý
 int iStepDelta = 0;         //²½Êý²îÖµ
-int iStepDeltaA = 0;         //²½Êý²îÖµ
-int iStepDeltaD = 0;         //²½Êý²îÖµ
-
 int iStartStep  = 0;         //¼ÓËÙ¿ªÊ¼²½Êý    
 int iStopStep  = 0;         //¼õËÙ½áÊø²½Êý   
+u8  i=0;
 
-u8 Write_Flash(u32 *buff, u8 len);
 u8 Write_Flash(u32 *buff, u8 len)
 {    
 	volatile FLASH_Status FLASHStatus;
@@ -97,7 +89,6 @@ u8 Write_Flash(u32 *buff, u8 len)
 	return 0;
 }
 
-void Read_Flash(u32 *buff, u8 len);
 void Read_Flash(u32 *buff, u8 len)
 {
 	u32 Address = WriteFlashAddress;
@@ -109,23 +100,16 @@ void Read_Flash(u32 *buff, u8 len)
 	}
 }
 
-void ReadCfg()
+void ReadCfg(void)
 {
 	Read_Flash(UD.SaveArray, 5);
-	bReverse = UD.CfgData.Reverse;
-	uSubdivision = UD.CfgData.Division;
-	uSpeed  = UD.CfgData.Speed;
-	iStepCount = UD.CfgData.Counter;
-	pEquipment = UD.CfgData.DeviceName;
 }
 
-void WriteCfg()
+void WriteCfg(void)
 {
 	Write_Flash(UD.SaveArray, 5);
 }
 
-
-void SetMode(int sMode);
 void SetMode(int sMode)
 {
 	switch(sMode)
@@ -198,8 +182,12 @@ void SetMode(int sMode)
 	}
 }
 
-//void SlewOut();
-void SlewOut()//:F-#
+void SetSpeed(u16 SetSpeed)
+{
+	SetSpeedMoter(10000/SetSpeed);
+}
+
+void SlewOut(void)//:F-#
 {
 	if(bReverse)
 		GPIO_ResetBits(LED2_GPIO_PORT, LED2_GPIO_PIN);  //DRV8825dirÐÅºÅ
@@ -210,8 +198,7 @@ void SlewOut()//:F-#
 	bIncreCount = true;
 }
 
-//void SlewIn();
-void SlewIn()//:F+#
+void SlewIn(void)//:F+#
 {
 	if(bReverse)
 		GPIO_SetBits(LED2_GPIO_PORT, LED2_GPIO_PIN);    //DRV8825dirÐÅºÅ
@@ -222,69 +209,52 @@ void SlewIn()//:F+#
 	bIncreCount = false;
 }
 
-void Pause()
+void Pause(void)
 {
 	ControlMotor(DISABLE);
 	bIsMoving = false;
 	uMoveState = 0;
 }
 
-void Halt()
+void Halt(void)
 {
 	ControlMotor(DISABLE);
+	UD.CfgData.Counter=iStepCount;
+	WriteCfg();
 	bIsMoving = false;
 	uMoveState = 0;
-	//µ½Î»ºó´æ´¢Î»ÖÃ
-	//ReadCfg();
-	//UD.CfgData.Counter=iStepCount;
-	//WriteCfg();
-}
-/*
-bool Accelerate(u16 Speed);//¼ÓËÙËã·¨
-bool Accelerate(u16 Speed)//¼ÓËÙËã·¨-·µ»ØtrueËµÃ÷¼ÓËÙÍê³É
-{
-	if(uSpeed<=Speed)//¼ÓËÙµ½Speed¾ÍÍ£Ö¹¼ÓËÙ
-		return true;
-	if(bIncreCount)
-		iStepDeltaA = iStepCount - iStartStep;
-	else
-		iStepDeltaA = iStartStep - iStepCount;
-	if(iStepDeltaA<10)
-		uSpeed=uSpeed>64?64:uSpeed;
-	else if(iStepDeltaA<20)
-		uSpeed=uSpeed>32?32:uSpeed;
-	else if(iStepDeltaA<30)
-		uSpeed=uSpeed>16?16:uSpeed;
-	else if(iStepDeltaA<40)
-		uSpeed=uSpeed>8?8:uSpeed;
-	else if(iStepDeltaA<50)
-		uSpeed=uSpeed>4?4:uSpeed;
-	else if(iStepDeltaA<60)
-	  uSpeed=2;
-	return false;
 }
 
-void Decelerate()//¼õËÙËã·¨
+void Accelerate(int iDelta)//¼ÓËÙËã·¨
 {
-	if(bIncreCount)
-		iStepDeltaD = iStopStep - iStepCount;
-	else
-		iStepDeltaD = iStepCount - iStopStep;
-	if(iStepDeltaD<=0)
+	if(uSpeedTmp>=uSpeed)
+		return;
+	for(i=1;i<=80;i++)
+	{
+		if(iDelta<i*5)
+		{
+			uSpeedTmp=i*5;
+			SetSpeed(uSpeedTmp);
+		}
+	}
+}
+
+void Decelerate(int iDelta)//¼õËÙËã·¨
+{
+	if(iDelta<=0)
 		Halt();
-	if(iStepDeltaD<10)
-		uSpeed=uSpeed>64?uSpeed:64;
-	else if(iStepDeltaD<20)
-		uSpeed=uSpeed>32?uSpeed:32;
-	else if(iStepDeltaD<30)
-		uSpeed=uSpeed>16?uSpeed:16;
-	else if(iStepDeltaD<40)
-		uSpeed=uSpeed>8?uSpeed:8;
-	else if(iStepDeltaD<50)
-		uSpeed=uSpeed>4?uSpeed:4;
+	for(i=1;i<=80;i++)
+	{
+		if(iDelta<i*5)
+		{
+			uSpeedTmp=i*5;
+			if(uSpeedTmp>=uSpeed)
+				uSpeedTmp=uSpeed;
+			SetSpeed(uSpeedTmp);
+		}
+	}
 }
-*/
-void CmdProcess(unsigned char *RxBuffer);
+
 void CmdProcess(unsigned char *RxBuffer)
 {
 	unsigned char ucTemp;
@@ -320,44 +290,76 @@ void CmdProcess(unsigned char *RxBuffer)
 							iStepCmd = atoi((char const *)RxBuffer+4);
 							iStepCmd = -iStepCmd;
 						}
-						iStepDelta = iStepCmd - iStepCount;
 						iStartStep=iStepCount;
 						iStopStep = iStepCmd;
-						if(iStepDelta>0)
+						uSpeedTmp=1;
+						if(iStepCmd > iStepCount)
 						{
-							/*
 							uMoveState = 1;
-							if(iStepDelta>150)//´óÓÚ150Ö´ÐÐ¼Ó¼õËÙ
-							{
-								uSpeed=uSpeedM;
-								bAccFlag=true;
-							}
-							else //Ð¡ÓÚ100ÒÔ64ËÙ¶È×ß
-							{
-								uSpeed=64;
-								bAccFlag=false;
-							}
-							*/
 							SlewOut();
 						}
-						else if(iStepDelta<0)
+						else if(iStepCmd < iStepCount)
 						{
-							/*
-							uMoveState = 1;
-							if(iStepDelta<-150)//´óÓÚ150Ö´ÐÐ¼Ó¼õËÙ
-							{
-								uSpeed=uSpeedM;
-								bAccFlag=true;
-							}
-							else //Ð¡ÓÚ100ÒÔ64ËÙ¶È×ß
-							{
-								uSpeed=64;
-								bAccFlag=false;
-							}
-							*/
+							uMoveState = 2;
 							SlewIn();
 						}
 						sprintf(ReplyBuff,":P#\n");
+						break;
+					}
+				case '-': 				//:F-#  
+					{
+						uSpeedTmp=1;
+						uMoveState = 3;
+						iStartStep=iStepCount;
+						SlewOut();
+						sprintf(ReplyBuff,":-#\n");
+						break;
+					}
+				case '+': 				//:F+#    
+					{
+						uSpeedTmp=1;
+						uMoveState = 4;
+						iStartStep=iStepCount;
+						SlewIn();
+						sprintf(ReplyBuff,":+#\n");
+						break;
+					}
+				case 'Q': 				//:FQ#    
+					{
+						uSpeedTmp=1;
+						switch(uMoveState)
+						{
+							case 1:
+							{
+								iStopStep = iStepCount+100;
+								uMoveState = 5;
+								break;
+							}
+							case 2:
+							{
+								iStopStep = iStepCount-100;
+								uMoveState = 5;
+								break;
+							}
+							case 3:
+							{
+								iStopStep = iStepCount+100;
+								uMoveState = 5;
+								break;
+							}
+							case 4:
+							{
+								iStopStep = iStepCount-100;
+								uMoveState = 6;
+								break;
+							}
+							default:
+							{
+								uMoveState = 0;
+								break;
+							}
+						}
+						sprintf(ReplyBuff,":Q#\n");
 						break;
 					}
 				case 't':
@@ -368,33 +370,6 @@ void CmdProcess(unsigned char *RxBuffer)
 							sprintf(ReplyBuff,":t%.2f#\n", 999.99);//ÎÂ¶È´«¸ÐÆ÷²»¿ÉÓÃ·µ»Ø999.99
 						break;
 					}
-				case '-': 				//:F-#  
-					{
-						//uMoveState = 2;
-						iStartStep=iStepCount;
-						SlewOut();
-						sprintf(ReplyBuff,":-#\n");
-						break;
-					}
-				case '+': 				//:F+#    
-					{
-						//uMoveState = 2;
-						iStartStep=iStepCount;
-						SlewIn();
-						sprintf(ReplyBuff,":+#\n");
-						break;
-					}
-				case 'Q': 				//:FQ#    
-					{
-						//uMoveState = 3;
-						if(bIncreCount)
-							iStopStep = iStepCount+50;//30²½Ö®ÄÚÍ£ÏÂÀ´
-						else
-							iStopStep = iStepCount-50;//30²½Ö®ÄÚÍ£ÏÂÀ´
-						Halt();
-						sprintf(ReplyBuff,":Q#\n");
-						break;
-					}
 				case '?':
 					{
 						sprintf(ReplyBuff, ":?%s#\n", pEquipment);
@@ -402,22 +377,17 @@ void CmdProcess(unsigned char *RxBuffer)
 					}
 				case 'D':   				//:FDå*å*å*# 
 					{
-						strcpy(buffer, (char *)RxBuffer+3);
-						pEquipment = buffer;	
-						//ReadCfg();
-						//strcpy(UD.CfgData.DeviceName, (char *)RxBuffer+3);
-						//pEquipment = UD.CfgData.DeviceName;	
-						//WriteCfg();
+						strcpy(UD.CfgData.DeviceName, (char *)RxBuffer+3);
+						pEquipment = UD.CfgData.DeviceName;	
+						WriteCfg();
 						sprintf(ReplyBuff,":D#\n");
 						break;
 					}
 				case 'R': 				//:FR#    
 					{
-						Pause();
 						bReverse = !bReverse; 
-						//ReadCfg();
-						//UD.CfgData.Reverse=bReverse;
-						//WriteCfg();
+						UD.CfgData.Reverse=bReverse?1:0;
+						WriteCfg();
 						sprintf(ReplyBuff,":R#\n");
 						break;
 					}	
@@ -425,40 +395,40 @@ void CmdProcess(unsigned char *RxBuffer)
 					{
 						if (RxBuffer[3] == '+')//Ö»ÔÊÐí¶¨ÒåÕýÖµ
 						{
-							Pause();
+							Halt();
 							iStepCount = atoi((char const *)RxBuffer+4);
-							//ReadCfg();
-							//UD.CfgData.Counter=iStepCount;
-							//WriteCfg();
+							UD.CfgData.Counter=iStepCount;
+							WriteCfg();
 							sprintf(ReplyBuff,":S#\n");
 						}
 						break;							
 					}
 				case 'M':     //:FM2#
 					{
-						Pause();
 						uSubdivision = atoi((char const *)RxBuffer+3);
 						SetMode(uSubdivision);
-						//ReadCfg();
-						//UD.CfgData.Division=uSubdivision;
-						//WriteCfg();
+						UD.CfgData.Division=uSubdivision;
+						WriteCfg();
 						sprintf(ReplyBuff,":M#\n");
 						break;
 					}
 				case 'V': //:FV256#
 					{
-						Pause();
 						uSpeed = atoi((char const *)RxBuffer+3);
 						if(uSpeed<1) 
 							uSpeed = 1;
-						else if(uSpeed>10000)
-							uSpeed = 10000;
-						printf("%d",uSpeed);
-						SetSpeedMoter(uSpeed);
-						//ReadCfg();
-						//UD.CfgData.SpeedM=uSpeedM;
-						//WriteCfg();
+						else if(uSpeed>400)
+							uSpeed = 400;
+						SetSpeed(uSpeed);
+						UD.CfgData.Speed=uSpeed;
+						WriteCfg();
 						sprintf(ReplyBuff, ":V#\n");
+						break;
+					}
+				case 'G': //:FV256#
+					{
+						ReadCfg(); 
+						sprintf(ReplyBuff, ":GReverse->%d Subdivision->%d Speed->%d StepCount->%d DeviceName->%s#\n",UD.CfgData.Reverse,UD.CfgData.Division,UD.CfgData.Speed,UD.CfgData.Counter,UD.CfgData.DeviceName);
 						break;
 					}
 				default:
@@ -475,6 +445,8 @@ void CmdProcess(unsigned char *RxBuffer)
 
 int main()
 {	
+	BASIC_TIM_Init();
+	
 	LED_GPIO_Config();
 
 	SysTick_Init();
@@ -482,8 +454,6 @@ int main()
 	USART_Config();
 
 	HC05_Init();
-
-	BASIC_TIM_Init();
 	
 	if( DS18B20_Init())	
 		//printf("\r\n no ds18b20 exit \r\n");
@@ -491,10 +461,26 @@ int main()
 	else
 		bTempAvail=true;
 	//printf("\r\n ds18b20 exit \r\n");
-	SetMode(uSubdivision);//³õÊ¼»¯Ï¸·Ö
 	
-	//ReadCfg();
-	//ControlMotor(ENABLE);
+	ReadCfg();
+	if(UD.CfgData.Reverse==255)//Î´³õÊ¼»¯¹ý¾Í³õÊ¼»¯
+	{
+		UD.CfgData.Reverse=(bReverse==true)?1:0;
+		UD.CfgData.Division=uSubdivision;
+		UD.CfgData.Speed=uSpeed;
+		UD.CfgData.Counter=iStepCount;
+		strcpy(UD.CfgData.DeviceName, pEquipment);
+		WriteCfg();
+	}
+	
+	bReverse = UD.CfgData.Reverse==0?false:true;
+	uSubdivision = UD.CfgData.Division;
+	uSpeed  = UD.CfgData.Speed;
+	iStepCount = UD.CfgData.Counter;
+	pEquipment = UD.CfgData.DeviceName;
+	
+	SetMode(uSubdivision);
+	SetSpeed(uSpeed);
 	
 	while(1)
 	{	
@@ -508,7 +494,7 @@ int main()
 			ReplyBuff[0] = '\0';
 			
 		}	
-		/*	
+	
 	  //´¦Àí´®¿Ú2Êý¾Ý	
 	  if (blurunflag == 1)
 	  {     
@@ -518,50 +504,56 @@ int main()
 			clean_rebuff();
 			ReplyBuff[0] = '\0';
 	  }
-	  
-     //µç»ú¿ØÖÆ
-    if ( time > uSpeed ) 
-    {
-			time = 0;
-			if (bRisingEdge)//¸ßµçÆ½±äµÍµçÆ½¼ÆÊý£¨ÏÂ½µÑØ£©
+	  switch(uMoveState)
+		{
+			case 1://Move Out
 			{
-				digitalLo(LED3_GPIO_PORT,LED3_GPIO_PIN);//Êä³öµÍµçÆ½
-				bRisingEdge = false;
-												
-				if ((bIsMoving == true) && (bIncreCount == true))
-				{
-						iStepCount++;
-				}	
-				else if ((bIsMoving == true) && (bIncreCount == false) )
-				{
-						iStepCount--;	
-				}
-			}			
-			else
-			{
-				digitalHi(LED3_GPIO_PORT,LED3_GPIO_PIN);//Êä³ö¸ßµçÆ½
-				bRisingEdge = true;
-			}
-			
-			//LED3_TOGGLE; //step	
-			
-			if(uMoveState==1)
-			{
-				//bAccFlag=Accelerate(uSpeedM);
-				if(bAccFlag)//bAccFlag==true-¼ÓËÙÍê³É
-					Accelerate(uSpeedM);
-				Decelerate();
+				iStepDelta = iStepCmd - iStepCount;
+				if(iStepDelta<=200)
+					Decelerate(iStepDelta);//¼õËÙÓÅÏÈ
+				else
+					Accelerate(iStepDelta);
+				break;
 			}	
-			else if(uMoveState==2)
+			case 2://Move In
 			{
-				Accelerate(uSpeedS);
+				iStepDelta = iStepCount - iStepCmd;
+				if(iStepDelta<=200)
+					Decelerate(iStepDelta);//¼õËÙÓÅÏÈ
+				else
+					Accelerate(iStepDelta);
+				break;
 			}
-			else if(uMoveState==3)
+			case 3://Slew Out
 			{
-				Decelerate();
+				iStepDelta = iStepCount - iStartStep;
+				Accelerate(iStepDelta);
+				break;
 			}
-    } 
-*/		
+			case 4://Slew In
+			{
+				iStepDelta = iStartStep - iStepCount;
+				Accelerate(iStepDelta);
+				break;
+			}
+			case 5://
+			{
+				iStepDelta = iStopStep - iStepCount;
+				Decelerate(iStepDelta);//¼õËÙÓÅÏÈ
+				break;
+			}
+			case 6://
+			{
+				iStepDelta = iStepCount - iStopStep;
+				Decelerate(iStepDelta);//¼õËÙÓÅÏÈ
+				break;
+			}
+			default:
+			{
+				uMoveState=0;
+				break;
+			}
+		}
 	}
 }
 

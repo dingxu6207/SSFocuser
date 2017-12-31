@@ -150,7 +150,7 @@ void  BASIC_TIM_IRQHandler (void)
 {
 	if ( TIM_GetITStatus( BASIC_TIM, TIM_IT_Update) != RESET ) 
 	{	
-		LED3_TOGGLE;
+		//LED3_TOGGLE;
 		
 		if ((bIsMoving) && (bIncreCount) )
 		{
