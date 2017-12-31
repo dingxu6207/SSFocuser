@@ -6,8 +6,8 @@
 #define            BASIC_TIM                   TIM1
 #define            BASIC_TIM_APBxClock_FUN     RCC_APB2PeriphClockCmd
 #define            BASIC_TIM_CLK               RCC_APB2Periph_TIM1
-#define            BASIC_TIM_Period            (100-1)    
-#define            BASIC_TIM_Prescaler         (72-1)
+#define            BASIC_TIM_Period            (10000-1)    
+#define            BASIC_TIM_Prescaler         (7200-1)
 #define            BASIC_TIM_IRQ               TIM1_UP_IRQn
 #define            BASIC_TIM_IRQHandler        TIM1_UP_IRQHandler
 

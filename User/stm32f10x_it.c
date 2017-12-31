@@ -146,11 +146,11 @@ void PendSV_Handler(void)
 {
 }
 
+bool  Iostate;
 void  BASIC_TIM_IRQHandler (void)
 {
 	if ( TIM_GetITStatus( BASIC_TIM, TIM_IT_Update) != RESET ) 
 	{	
-		LED3_TOGGLE;
 		
 		if ((bIsMoving) && (bIncreCount) )
 		{
@@ -160,6 +160,14 @@ void  BASIC_TIM_IRQHandler (void)
 		{
 			iStepCount--;
 		}
+
+		if (Iostate)			
+			GPIO_SetBits(LED3_GPIO_PORT, LED3_GPIO_PIN);
+		else
+			GPIO_ResetBits(LED3_GPIO_PORT, LED3_GPIO_PIN);
+
+		Iostate = !Iostate;
+			
 		TIM_ClearITPendingBit(BASIC_TIM , TIM_FLAG_Update); 
 
         
