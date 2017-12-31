@@ -5,9 +5,7 @@
 #include "bsp_usart.h"
 #include "bsp_led.h"
 
-static void BASIC_TIM_NVIC_Config(void);
-static void BASIC_TIM_Mode_Config(void);
-static void ADVANCE_TIM_GPIO_Config(void);
+
 
 
 static void ADVANCE_TIM_GPIO_Config(void)
