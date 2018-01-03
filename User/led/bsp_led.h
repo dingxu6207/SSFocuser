@@ -46,16 +46,16 @@
 #define M2_GPIO_CLK         RCC_APB2Periph_GPIOA
 #define M2_GPIO_PIN         GPIO_Pin_11
 
-//RSTÐÅºÅ 
-#define RST_GPIO_PORT        GPIOA
-#define RST_GPIO_CLK         RCC_APB2Periph_GPIOA
-#define RST_GPIO_PIN         GPIO_Pin_12
 
 //SLFÐÅºÅ 
 #define SLF_GPIO_PORT        GPIOA
 #define SLF_GPIO_CLK         RCC_APB2Periph_GPIOA
 #define SLF_GPIO_PIN         GPIO_Pin_13
 
+//RSTÐÅºÅ 
+#define RST_GPIO_PORT        GPIOA
+#define RST_GPIO_CLK         RCC_APB2Periph_GPIOA
+#define RST_GPIO_PIN         GPIO_Pin_14
 
 #define ON  0
 #define OFF 1

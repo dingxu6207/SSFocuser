@@ -26,6 +26,9 @@ void LED_GPIO_Config(void)
 {		
 		/*定义一个GPIO_InitTypeDef类型的结构体*/
 		GPIO_InitTypeDef GPIO_InitStructure;
+	
+	  RCC_APB2PeriphClockCmd( RCC_APB2Periph_AFIO, ENABLE);
+	  GPIO_PinRemapConfig(GPIO_Remap_SWJ_Disable, ENABLE);
 
 		/*开启LED相关的GPIO外设时钟*/
 		RCC_APB2PeriphClockCmd( LED1_GPIO_CLK | LED2_GPIO_CLK |LED3_GPIO_CLK, ENABLE);
