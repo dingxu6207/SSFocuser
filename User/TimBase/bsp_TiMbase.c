@@ -11,7 +11,10 @@
 static void ADVANCE_TIM_GPIO_Config(void)
 {
 	GPIO_InitTypeDef GPIO_InitStructure;
-
+  
+	//RCC_APB2PeriphClockCmd( RCC_APB2Periph_AFIO, ENABLE);
+	GPIO_PinRemapConfig(GPIO_PartialRemap_TIM1, ENABLE);
+	
 	// 输出比较通道 GPIO 初始化
 	RCC_APB2PeriphClockCmd(ADVANCE_TIM_CH1_GPIO_CLK, ENABLE);
 	GPIO_InitStructure.GPIO_Pin = ADVANCE_TIM_CH1_PIN;

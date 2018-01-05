@@ -445,7 +445,6 @@ void CmdProcess(unsigned char *RxBuffer)
 
 int main()
 {	
-	BASIC_TIM_Init();
 	
 	LED_GPIO_Config();
 
@@ -454,6 +453,8 @@ int main()
 	USART_Config();
 
 	HC05_Init();
+	
+	BASIC_TIM_Init();
 	
 	if( DS18B20_Init())	
 		//printf("\r\n no ds18b20 exit \r\n");
