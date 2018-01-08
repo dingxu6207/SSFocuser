@@ -12,12 +12,12 @@ static void NVIC_Configuration(void)
   NVIC_InitTypeDef NVIC_InitStructure;
   
   /* 配置NVIC为优先级组1 */
-  NVIC_PriorityGroupConfig(NVIC_PriorityGroup_1);
+  NVIC_PriorityGroupConfig(NVIC_PriorityGroup_0);
   
   /* 配置中断源：按键1 */
   NVIC_InitStructure.NVIC_IRQChannel = MIN_INT_EXTI_IRQ;
   /* 配置抢占优先级 */
-  NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 1;
+  NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 0;
   /* 配置子优先级 */
   NVIC_InitStructure.NVIC_IRQChannelSubPriority = 1;
   /* 使能中断通道 */
