@@ -22,6 +22,8 @@
 #include <string.h>
 #include "bsp_TiMbase.h"
 #include "stdbool.h"
+#include "Exti44E.h"
+
 #define WriteFlashAddress    ((u32)0x0800FC00)//存储到最后一页，地址范围：0x0800 FC00~0x0800 FFFF
 
 typedef union//union只能对第一个变量初始化
@@ -455,6 +457,8 @@ int main()
 	HC05_Init();
 	
 	BASIC_TIM_Init();
+	
+	EXTI_44E_Config();
 	
 	if( DS18B20_Init())	
 		//printf("\r\n no ds18b20 exit \r\n");

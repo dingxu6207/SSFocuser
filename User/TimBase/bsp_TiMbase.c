@@ -140,9 +140,9 @@ void ControlMotor(FunctionalState NewState)
 	}
 	else
 	{
-		//使能定时器	      
+		//使能定时器			
     TIM_Cmd(BASIC_TIM, ENABLE);
-		TIM_CtrlPWMOutputs(BASIC_TIM, ENABLE); //输出	
+		TIM_CtrlPWMOutputs(BASIC_TIM, ENABLE); //输出			
 		GPIO_ResetBits(LED5_GPIO_PORT, LED5_GPIO_PIN); //DRV8825使能信号
 		//printf("TIM is able!\n");
 	}

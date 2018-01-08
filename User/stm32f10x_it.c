@@ -30,6 +30,7 @@
 #include "bsp_TiMbase.h"
 #include "stdbool.h"
 #include "bsp_led.h"
+#include "Exti44E.h"
 //extern volatile uint32_t time;
 extern bool bIsMoving;	           
 extern bool bIncreCount;            
@@ -230,6 +231,28 @@ void BLT_USART_IRQHandler(void)
 {
 	bsp_USART_Process();
 
+}
+
+void MIN_IRQHandler(void)
+{
+  //确保是否产生了EXTI Line中断
+	if(EXTI_GetITStatus(MIN_INT_EXTI_LINE) != RESET) 
+	{
+		printf("it is min!\n");
+    	//清除中断标志位
+		EXTI_ClearITPendingBit(MIN_INT_EXTI_LINE);     
+	}  
+}
+
+void MAX_IRQHandler(void)
+{
+  //确保是否产生了EXTI Line中断
+	if(EXTI_GetITStatus(MAX_INT_EXTI_LINE) != RESET) 
+	{
+		printf("it is max!\n");
+   		//清除中断标志位
+		EXTI_ClearITPendingBit(MAX_INT_EXTI_LINE);     
+	}  
 }
 
 
