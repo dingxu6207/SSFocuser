@@ -41,3 +41,5 @@
 ..\..\output\main.o: ..\..\User\TimBase\bsp_TiMbase.h
 ..\..\output\main.o: d:\Keil_v5\ARM\ARMCC\bin\..\include\stdbool.h
 ..\..\output\main.o: ..\..\User\exti\Exti44E.h
+..\..\output\main.o: ..\..\User\wifi\uart3\WifiUsart.h
+..\..\output\main.o: ..\..\User\wifi\esp8266\ESP8266.h

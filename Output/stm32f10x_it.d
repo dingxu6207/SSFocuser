@@ -36,3 +36,4 @@
 ..\..\output\stm32f10x_it.o: d:\Keil_v5\ARM\ARMCC\bin\..\include\stdbool.h
 ..\..\output\stm32f10x_it.o: ..\..\User\led\bsp_led.h
 ..\..\output\stm32f10x_it.o: ..\..\User\exti\Exti44E.h
+..\..\output\stm32f10x_it.o: ..\..\User\wifi\uart3\WifiUsart.h

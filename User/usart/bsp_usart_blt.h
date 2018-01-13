@@ -24,8 +24,10 @@
 extern unsigned char uart_buff[UART_BUFF_SIZE];
 
 void BLT_USART_Config(void);
-void Usart_SendStr_length( USART_TypeDef * pUSARTx, uint8_t *str,uint32_t strlen );
-void Usart_SendString( USART_TypeDef * pUSARTx, uint8_t *str);
+void BLTUsart_SendStr_length( USART_TypeDef * pUSARTx, uint8_t *str,uint32_t strlen );
+void BLTUsart_SendString( USART_TypeDef * pUSARTx, uint8_t *str);
+void BLTUsart_SendByte( USART_TypeDef * pUSARTx, uint8_t ch );
+
 
 void bsp_USART_Process(void);
 char *get_rebuff(uint16_t *len);

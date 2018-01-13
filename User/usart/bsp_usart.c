@@ -102,7 +102,7 @@ void USART_Config(void)
 	// 使能串口
 	USART_Cmd(DEBUG_USARTx, ENABLE);	    
 }
-#if 0
+#if 1
 /*****************  发送一个字节 **********************/
 void Usart_SendByte( USART_TypeDef * pUSARTx, uint8_t ch)
 {

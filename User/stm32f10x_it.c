@@ -31,6 +31,8 @@
 #include "stdbool.h"
 #include "bsp_led.h"
 #include "Exti44E.h"
+#include "WifiUsart.h"
+
 //extern volatile uint32_t time;
 extern bool bIsMoving;	           
 extern bool bIncreCount;            
@@ -257,6 +259,36 @@ void MAX_IRQHandler(void)
    		//清除中断标志位
 		EXTI_ClearITPendingBit(MAX_INT_EXTI_LINE);     
 	}  
+}
+// 串口中断服务函数
+bool bRunMotor = false;
+void DEBUG_USART3_IRQHandler(void) 
+{
+  	
+	unsigned char data;
+  	
+	if(USART_GetITStatus(DEBUG_USART3x,USART_IT_RXNE)!=RESET)
+	{		
+    
+			data = USART_ReceiveData(DEBUG_USART3x);
+		
+    	if(WIFIUART_RxPtr < (WIFIUART_RX_BUFFER_SIZE - 1))
+        {
+                WIFIUART_RxBuffer[WIFIUART_RxPtr] = data;
+                WIFIUART_RxBuffer[WIFIUART_RxPtr + 1]=0x00;
+                WIFIUART_RxPtr++;
+        }
+			else
+        {
+                WIFIUART_RxBuffer[WIFIUART_RxPtr - 1] = data;
+                
+        }
+
+		if (data == 35)
+		{
+			bRunMotor = true;
+		}
+	}	 
 }
 
 

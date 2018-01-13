@@ -23,6 +23,8 @@
 #include "bsp_TiMbase.h"
 #include "stdbool.h"
 #include "Exti44E.h"
+#include "WifiUsart.h"
+#include "ESP8266.h"
 
 #define WriteFlashAddress    ((u32)0x0800FC00)//存储到最后一页，地址范围：0x0800 FC00~0x0800 FFFF
 
@@ -433,6 +435,31 @@ void CmdProcess(unsigned char *RxBuffer)
 						sprintf(ReplyBuff, ":GReverse->%d Subdivision->%d Speed->%d StepCount->%d DeviceName->%s#\n",UD.CfgData.Reverse,UD.CfgData.Division,UD.CfgData.Speed,UD.CfgData.Counter,UD.CfgData.DeviceName);
 						break;
 					}
+                case 'W': //设置IP
+                	{
+						UART_RxBuffer[UART_RxPtr - 1] = '\0';							
+						SetIP(UART_RxBuffer);
+						break;
+					}
+				case 'A':
+					{
+						UART_RxBuffer[UART_RxPtr - 1] = '\0';	
+						SetWifiName(UART_RxBuffer);
+						break;
+					}
+				case 'C':
+					{
+						UART_RxBuffer[UART_RxPtr - 1] = '\0';	
+						SetWifiCode(UART_RxBuffer);
+						break;
+					}
+				case 'Y':
+					{
+						SetNameCode();
+						SetWifiConnect();						
+						break;
+					}
+				
 				default:
 					{
 						sprintf(ReplyBuff, ":U#\n");
@@ -444,6 +471,9 @@ void CmdProcess(unsigned char *RxBuffer)
 	
 	RxBuffer = NULL;
 }
+
+
+extern bool bRunMotor;
 
 int main()
 {	
@@ -459,6 +489,10 @@ int main()
 	BASIC_TIM_Init();
 	
 	EXTI_44E_Config();
+
+	WifiUSART_Config();
+	
+	ESP8266IO();
 	
 	if( DS18B20_Init())	
 		//printf("\r\n no ds18b20 exit \r\n");
@@ -487,6 +521,7 @@ int main()
 	SetMode(uSubdivision);
 	SetSpeed(uSpeed);
 	
+			
 	while(1)
 	{	
 		//处理串口1数据
@@ -509,6 +544,16 @@ int main()
 			clean_rebuff();
 			ReplyBuff[0] = '\0';
 	  }
+
+	  if (bRunMotor == true)
+	  {
+		  CmdProcess(WIFIUART_RxBuffer);
+		  WifiUsart_SendString(USART1, ReplyBuff);
+		  bRunMotor = false;
+		  Wifiuart_FlushRxBuffer();
+		  ReplyBuff[0] = '\0';
+	  }
+	  
 	  switch(uMoveState)
 		{
 			case 1://Move Out

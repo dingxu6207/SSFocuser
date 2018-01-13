@@ -82,7 +82,7 @@ void BLT_USART_Config(void)
 }
 
 /***************** 发送一个字符  **********************/
-static void Usart_SendByte( USART_TypeDef * pUSARTx, uint8_t ch )
+void BLTUsart_SendByte( USART_TypeDef * pUSARTx, uint8_t ch )
 {
 	/* 发送一个字节数据到USART1 */
 	USART_SendData(pUSARTx,ch);
@@ -91,12 +91,12 @@ static void Usart_SendByte( USART_TypeDef * pUSARTx, uint8_t ch )
 	while (USART_GetFlagStatus(pUSARTx, USART_FLAG_TXE) == RESET);	
 }
 /*****************  发送指定长度的字符串 **********************/
-void Usart_SendStr_length( USART_TypeDef * pUSARTx, uint8_t *str,uint32_t strlen )
+void BLTUsart_SendStr_length( USART_TypeDef * pUSARTx, uint8_t *str,uint32_t strlen )
 {
 	unsigned int k=0;
     do 
     {
-        Usart_SendByte( pUSARTx, *(str + k) );
+        BLTUsart_SendByte( pUSARTx, *(str + k) );
         k++;
     } while(k < strlen);
 }
@@ -106,12 +106,12 @@ void Usart_SendStr_length( USART_TypeDef * pUSARTx, uint8_t *str,uint32_t strlen
 
 
 /*****************  发送字符串 **********************/
-void Usart_SendString( USART_TypeDef * pUSARTx, uint8_t *str)
+void BLTUsart_SendString( USART_TypeDef * pUSARTx, uint8_t *str)
 {
 	unsigned int k=0;
     do 
     {
-        Usart_SendByte( pUSARTx, *(str + k) );
+        BLTUsart_SendByte( pUSARTx, *(str + k) );
         k++;
     } while(*(str + k)!='\0');
 }
