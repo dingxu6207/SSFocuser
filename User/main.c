@@ -548,7 +548,7 @@ int main()
 	  if (bRunMotor == true)
 	  {
 		  CmdProcess(WIFIUART_RxBuffer);
-		  WifiUsart_SendString(USART1, ReplyBuff);
+		  WifiUsart_SendString(USART3, ReplyBuff);
 		  bRunMotor = false;
 		  Wifiuart_FlushRxBuffer();
 		  ReplyBuff[0] = '\0';
