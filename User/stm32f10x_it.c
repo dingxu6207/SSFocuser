@@ -238,7 +238,9 @@ void MIN_IRQHandler(void)
   //确保是否产生了EXTI Line中断
 	if(EXTI_GetITStatus(MIN_INT_EXTI_LINE) != RESET) 
 	{
-		printf("it is min!\n");
+		iStepCount = -65535;
+		printf("it is min %d!\n", iStepCount);
+		ControlMotor(DISABLE);
     	//清除中断标志位
 		EXTI_ClearITPendingBit(MIN_INT_EXTI_LINE);     
 	}  
@@ -249,7 +251,9 @@ void MAX_IRQHandler(void)
   //确保是否产生了EXTI Line中断
 	if(EXTI_GetITStatus(MAX_INT_EXTI_LINE) != RESET) 
 	{
-		printf("it is max!\n");
+		iStepCount = 65535;
+		printf("it is max %d!\n", iStepCount);
+		ControlMotor(DISABLE);
    		//清除中断标志位
 		EXTI_ClearITPendingBit(MAX_INT_EXTI_LINE);     
 	}  

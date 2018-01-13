@@ -361,7 +361,7 @@
               <MiscControls></MiscControls>
               <Define>STM32F10X_MD, USE_STDPERIPH_DRIVER</Define>
               <Undefine></Undefine>
-              <IncludePath>..\..\Libraries\CMSIS;..\..\User;..\..\Libraries\FWlib\inc;..\..\User\SysTick;..\..\User\usart;..\..\User\hc05;..\..\User\ds18b20;..\..\User\TimBase;..\..\User\led</IncludePath>
+              <IncludePath>..\..\Libraries\CMSIS;..\..\User;..\..\Libraries\FWlib\inc;..\..\User\SysTick;..\..\User\usart;..\..\User\hc05;..\..\User\ds18b20;..\..\User\TimBase;..\..\User\led;..\..\User\exti</IncludePath>
             </VariousControls>
           </Cads>
           <Aads>
@@ -618,6 +618,11 @@
               <FileName>bsp_led.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\..\User\led\bsp_led.c</FilePath>
+            </File>
+            <File>
+              <FileName>Exti44E.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\User\exti\Exti44E.c</FilePath>
             </File>
           </Files>
         </Group>

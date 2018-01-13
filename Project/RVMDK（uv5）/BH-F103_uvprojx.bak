@@ -361,7 +361,7 @@
               <MiscControls></MiscControls>
               <Define>STM32F10X_MD, USE_STDPERIPH_DRIVER</Define>
               <Undefine></Undefine>
-              <IncludePath>..\..\Libraries\CMSIS;..\..\User;..\..\Libraries\FWlib\inc;..\..\User\led;..\..\User\SysTick;..\..\User\usart;..\..\User\hc05;..\..\User\ds18b20;..\..\User\TimBase</IncludePath>
+              <IncludePath>..\..\Libraries\CMSIS;..\..\User;..\..\Libraries\FWlib\inc;..\..\User\SysTick;..\..\User\usart;..\..\User\hc05;..\..\User\ds18b20;..\..\User\TimBase;..\..\User\led</IncludePath>
             </VariousControls>
           </Cads>
           <Aads>
@@ -585,11 +585,6 @@
               <FilePath>..\..\User\stm32f10x_it.h</FilePath>
             </File>
             <File>
-              <FileName>bsp_led.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\..\User\Led\bsp_led.c</FilePath>
-            </File>
-            <File>
               <FileName>bsp_SysTick.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\..\User\SysTick\bsp_SysTick.c</FilePath>
@@ -618,6 +613,11 @@
               <FileName>bsp_TiMbase.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\..\User\TimBase\bsp_TiMbase.c</FilePath>
+            </File>
+            <File>
+              <FileName>bsp_led.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\User\led\bsp_led.c</FilePath>
             </File>
           </Files>
         </Group>
