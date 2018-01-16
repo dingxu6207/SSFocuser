@@ -1,11 +1,10 @@
 #include "WifiUsart.h"
 
 
- //串口接收数组
+//串口接收数组
 unsigned char WIFIUART_RxBuffer[WIFIUART_RX_BUFFER_SIZE];
- 
- //串口接收数组指针
- unsigned char WIFIUART_RxPtr;
+//串口接收数组指针
+unsigned char WIFIUART_RxPtr;
 
 
  /**

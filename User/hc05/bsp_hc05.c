@@ -42,7 +42,8 @@ int get_line(char* line, char* stream ,int max_size)
 void HC05_SendString(char* str)
 {
 	
-		BLTUsart_SendString(USART2,(uint8_t *)str);
+		//BLTUsart_SendString(USART2,(uint8_t *)str);
+	BLTUsart_SendString(USART2,str);
 
 }
 

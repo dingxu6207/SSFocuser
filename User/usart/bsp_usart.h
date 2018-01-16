@@ -8,9 +8,9 @@
 
 //串口接收缓冲数组大小
 #define UART_RX_BUFFER_SIZE 256 
-
 extern unsigned char UART_RxBuffer[UART_RX_BUFFER_SIZE];
 extern unsigned char UART_RxPtr;
+extern unsigned char UART_RxCmd;
 /** 
   * 串口宏定义，不同的串口挂载的总线和IO不一样，移植时需要修改这几个宏
 	* 1-修改总线时钟的宏，uart1挂载到apb2总线，其他uart挂载到apb1总线

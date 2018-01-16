@@ -7,6 +7,7 @@
 
 void ESP8266_Set(unsigned char *puf); // 数组指针*puf指向字符串数组 
 void SetIP(unsigned char *pReIP);
+void SetRemoteHost(unsigned char *pReIP,unsigned char *pRePort);
 void SetWifiConnect(void);
 void CmdString(unsigned char *pCmdtr);
 void SetWifiName(unsigned char *pReName);

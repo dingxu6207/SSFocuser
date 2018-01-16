@@ -33,18 +33,17 @@
 #include "Exti44E.h"
 #include "WifiUsart.h"
 
-//extern volatile uint32_t time;
 extern bool bIsMoving;	           
 extern bool bIncreCount;            
 extern int  iStepCount;
-	
-//接收数组指针
-extern unsigned char UART_RxPtr;
-
-
+unsigned char UART_RxPtr_Start=0;//命令开始位置即:位置
+unsigned char BLTUART_RxPtr_Start=0;//命令开始位置即:位置
+unsigned char WIFIUART_RxPtr_Start=0;//命令开始位置即:位置
+extern unsigned char UART_RxPtr_Prv;
+extern unsigned char BLTUART_RxPtr_Prv;
+extern unsigned char WIFIUART_RxPtr_Prv;
+extern void Halt(void);
 extern void TimingDelay_Decrement(void);
-
-u8 flagrun = 0;
 
 /** @addtogroup STM32F10x_StdPeriph_Template
   * @{
@@ -173,41 +172,85 @@ void  BASIC_TIM_IRQHandler (void)
 	}		 	
 }
 
-
 void SysTick_Handler(void)
 {
 	TimingDelay_Decrement();	
 }
 
-void DEBUG_USART_IRQHandler(void)
+u8 Delt(u8 Cur,u8 Prv)
 {
-	unsigned char data;
-    
-	if(USART_GetITStatus(DEBUG_USARTx,USART_IT_RXNE)!=RESET)
-
-	{	
-		data = USART_ReceiveData(DEBUG_USARTx);
-		
-	    if(UART_RxPtr < (UART_RX_BUFFER_SIZE - 1))
-        {
-                UART_RxBuffer[UART_RxPtr] = data;
-                UART_RxBuffer[UART_RxPtr + 1]=0x00;
-                UART_RxPtr++;
-        }
-		else
-        {
-                UART_RxBuffer[UART_RxPtr - 1] = data;
-                
-        }
-		
-        //如果为回车键，则开始处理串口数据
-        if(data == 35)
-        {
-            flagrun = 1;
-        }
-	}			
+	if(Cur>=Prv)
+		return Cur-Prv;
+	else
+		return Cur-Prv+257;//保证大于等于256
 }
 
+// 串口1中断服务函数
+void DEBUG_USART_IRQHandler(void)
+{
+	if(USART_GetITStatus(DEBUG_USARTx,USART_IT_RXNE)!=RESET)
+	{
+		//循环接收
+		UART_RxBuffer[UART_RxPtr] = USART_ReceiveData(DEBUG_USARTx);
+		if(UART_RxBuffer[UART_RxPtr] == 58)
+			UART_RxPtr_Start=UART_RxPtr;
+		if(Delt(UART_RxPtr,UART_RxPtr_Prv)>=UART_RX_BUFFER_SIZE)//超过缓存就丢弃
+		{
+			UART_RxPtr_Prv=UART_RxPtr_Start;
+			UART_RxCmd=0;
+		}
+		if(UART_RxBuffer[UART_RxPtr] == 35)
+			UART_RxCmd++;
+		if(UART_RxPtr < (UART_RX_BUFFER_SIZE - 1))//256-1
+			UART_RxPtr++;
+		else
+			UART_RxPtr=0;
+	}	
+}
+// 串口2中断服务函数
+void BLT_USART_IRQHandler(void)
+{
+  if(USART_GetITStatus(BLT_USARTx, USART_IT_RXNE) != RESET)
+	{
+		//循环接收
+		BLTUART_RxBuffer[BLTUART_RxPtr] = USART_ReceiveData(BLT_USARTx);
+		if(BLTUART_RxBuffer[BLTUART_RxPtr] == 58)
+			BLTUART_RxPtr_Start=BLTUART_RxPtr;
+		if(Delt(BLTUART_RxPtr,BLTUART_RxPtr_Prv)>=BLTUART_RX_BUFFER_SIZE)//超过缓存就丢弃
+		{
+			BLTUART_RxPtr_Prv=BLTUART_RxPtr_Start;
+			BLTUART_RxCmd=0;
+		}
+		if(BLTUART_RxBuffer[BLTUART_RxPtr] == 35)
+			BLTUART_RxCmd++;
+		if(BLTUART_RxPtr < (BLTUART_RX_BUFFER_SIZE- 1))//256-1
+			BLTUART_RxPtr++;
+		else
+			BLTUART_RxPtr=0;
+	}	
+}
+// 串口3中断服务函数
+void DEBUG_USART3_IRQHandler(void) 
+{
+  if(USART_GetITStatus(DEBUG_USART3x,USART_IT_RXNE)!=RESET)
+	{
+		//循环接收
+		WIFIUART_RxBuffer[WIFIUART_RxPtr] = USART_ReceiveData(DEBUG_USART3x);
+		if(WIFIUART_RxBuffer[WIFIUART_RxPtr] == 58)
+			WIFIUART_RxPtr_Start=WIFIUART_RxPtr;
+		if(Delt(WIFIUART_RxPtr,WIFIUART_RxPtr_Prv)>=WIFIUART_RX_BUFFER_SIZE)//超过缓存就丢弃
+		{
+			WIFIUART_RxPtr_Prv=WIFIUART_RxPtr_Start;
+			WIFIUART_RxCmd=0;
+		}
+		if(WIFIUART_RxBuffer[WIFIUART_RxPtr] == 35)
+			WIFIUART_RxCmd++;
+		if(WIFIUART_RxPtr < (WIFIUART_RX_BUFFER_SIZE - 1))//256-1
+			WIFIUART_RxPtr++;
+		else
+			WIFIUART_RxPtr=0;
+	}		
+}
 
 /******************************************************************************/
 /*                 STM32F10x Peripherals Interrupt Handlers                   */
@@ -229,20 +272,15 @@ void DEBUG_USART_IRQHandler(void)
   * @}
   */ 
 
-void BLT_USART_IRQHandler(void)
-{
-	bsp_USART_Process();
-
-}
-
 void MIN_IRQHandler(void)
 {
   //确保是否产生了EXTI Line中断
 	if(EXTI_GetITStatus(MIN_INT_EXTI_LINE) != RESET) 
 	{
-		iStepCount = -65535;
+		iStepCount = 0;
 		printf("it is min %d!\n", iStepCount);
-		ControlMotor(DISABLE);
+		//ControlMotor(DISABLE);
+		Halt();
     	//清除中断标志位
 		EXTI_ClearITPendingBit(MIN_INT_EXTI_LINE);     
 	}  
@@ -255,40 +293,11 @@ void MAX_IRQHandler(void)
 	{
 		iStepCount = 65535;
 		printf("it is max %d!\n", iStepCount);
-		ControlMotor(DISABLE);
+		//ControlMotor(DISABLE);
+		Halt();
    		//清除中断标志位
 		EXTI_ClearITPendingBit(MAX_INT_EXTI_LINE);     
 	}  
-}
-// 串口中断服务函数
-bool bRunMotor = false;
-void DEBUG_USART3_IRQHandler(void) 
-{
-  	
-	unsigned char data;
-  	
-	if(USART_GetITStatus(DEBUG_USART3x,USART_IT_RXNE)!=RESET)
-	{		
-    
-			data = USART_ReceiveData(DEBUG_USART3x);
-		
-    	if(WIFIUART_RxPtr < (WIFIUART_RX_BUFFER_SIZE - 1))
-        {
-                WIFIUART_RxBuffer[WIFIUART_RxPtr] = data;
-                WIFIUART_RxBuffer[WIFIUART_RxPtr + 1]=0x00;
-                WIFIUART_RxPtr++;
-        }
-			else
-        {
-                WIFIUART_RxBuffer[WIFIUART_RxPtr - 1] = data;
-                
-        }
-
-		if (data == 35)
-		{
-			bRunMotor = true;
-		}
-	}	 
 }
 
 

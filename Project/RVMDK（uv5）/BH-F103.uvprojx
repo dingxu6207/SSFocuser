@@ -361,7 +361,7 @@
               <MiscControls></MiscControls>
               <Define>STM32F10X_MD, USE_STDPERIPH_DRIVER</Define>
               <Undefine></Undefine>
-              <IncludePath>..\..\Libraries\CMSIS;..\..\User;..\..\Libraries\FWlib\inc;..\..\User\SysTick;..\..\User\usart;..\..\User\hc05;..\..\User\ds18b20;..\..\User\TimBase;..\..\User\led;..\..\User\exti</IncludePath>
+              <IncludePath>..\..\Libraries\CMSIS;..\..\User;..\..\Libraries\FWlib\inc;..\..\User\SysTick;..\..\User\usart;..\..\User\hc05;..\..\User\ds18b20;..\..\User\TimBase;..\..\User\led;..\..\User\exti;..\..\User\wifi\esp8266;..\..\User\wifi\uart3</IncludePath>
             </VariousControls>
           </Cads>
           <Aads>
@@ -623,6 +623,16 @@
               <FileName>Exti44E.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\..\User\exti\Exti44E.c</FilePath>
+            </File>
+            <File>
+              <FileName>WifiUsart.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\User\wifi\uart3\WifiUsart.c</FilePath>
+            </File>
+            <File>
+              <FileName>ESP8266.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\User\wifi\esp8266\ESP8266.c</FilePath>
             </File>
           </Files>
         </Group>

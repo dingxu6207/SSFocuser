@@ -37,33 +37,38 @@ unsigned char ipstr[100] = {0};
 unsigned char Cmdstr[100] = "AT+CIPSTART=\"TCP\",\"192.168.43.78\",8080";
 void SetIP(unsigned char *pReIP)
 {
-	pReIP = pReIP + 3;
+	//pReIP = pReIP + 3;
 	sprintf ( (char*)ipstr, "\"%s\",\"%s\",%s", "TCP", pReIP, "8080" );
 	sprintf ( (char*)Cmdstr, "AT+CIPSTART=%s", ipstr );
 	printf("ip is ok!\n");
 }
-
+void SetRemoteHost(unsigned char *pReIP,unsigned char *pRePort)
+{
+	sprintf ( (char*)ipstr, "\"%s\",\"%s\",%s", "TCP", pReIP, pRePort);
+	sprintf ( (char*)Cmdstr, "AT+CIPSTART=%s", ipstr );
+	//printf("Set ip&port is ok!\n");
+}
 unsigned char NameStr[100] = "\"A305\"";
 void SetWifiName(unsigned char *pReName)
 {
-	pReName = pReName + 3;
+	//pReName = pReName + 3;
 	sprintf((char *)NameStr, "\"%s\"", pReName);
-	printf("set wifi name is ok!\n");
+	//printf("set wifi name is ok!\n");
 }
 
 unsigned char CodeString[100] = "\"wildfired\"";
 void SetWifiCode(unsigned char *pReCode)
 {
-	pReCode = pReCode + 3;
+	//pReCode = pReCode + 3;
 	sprintf((char *)CodeString, "\"%s\"", pReCode);
-	printf("set code is ok!\n");
+	//printf("set code is ok!\n");
 }
 
 unsigned char CmdNameCode[100] = "AT+CWJAP=\"A304\",\"wildfire\"";
 void SetNameCode(void)
 {
 	sprintf((char *)CmdNameCode, "AT+CWJAP=%s,%s", NameStr, CodeString);
-	printf("%s\n", CmdNameCode);
+	//printf("%s\n", CmdNameCode);
 }
 
 void SetWifiConnect(void)

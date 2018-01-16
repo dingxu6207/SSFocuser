@@ -35,8 +35,8 @@
 "..\..\output\bsp_timbase.o"
 "..\..\output\bsp_led.o"
 "..\..\output\exti44e.o"
+"..\..\output\wifiusart.o"
 "..\..\output\esp8266.o"
-"..\..\output\wifiusart..o"
 --library_type=microlib --strict --scatter "..\..\Output\Á÷Ë®µÆ.sct"
 --summary_stderr --info summarysizes --map --xref --callgraph --symbols
 --info sizes --info totals --info unused --info veneers

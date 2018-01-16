@@ -135,6 +135,7 @@ void ControlMotor(FunctionalState NewState)
 		//使能定时器	      
     TIM_Cmd(BASIC_TIM, DISABLE);
 		TIM_CtrlPWMOutputs(BASIC_TIM, DISABLE); //禁止输出
+		//定时器关闭后再关闭使能
 		GPIO_SetBits(LED5_GPIO_PORT, LED5_GPIO_PIN); //DRV8825使能信号
 		//printf("TIM is disable!\n");
 	}
@@ -143,7 +144,8 @@ void ControlMotor(FunctionalState NewState)
 		//使能定时器			
     TIM_Cmd(BASIC_TIM, ENABLE);
 		TIM_CtrlPWMOutputs(BASIC_TIM, ENABLE); //输出			
-		GPIO_ResetBits(LED5_GPIO_PORT, LED5_GPIO_PIN); //DRV8825使能信号
+		//在控制函数中启动使能，然后再开启定时器
+		//GPIO_ResetBits(LED5_GPIO_PORT, LED5_GPIO_PIN); //DRV8825使能信号
 		//printf("TIM is able!\n");
 	}
 }

@@ -18,6 +18,10 @@
 #include "./usart/bsp_usart_blt.h"
 #include <stdarg.h>
 
+//中断缓存串口数据
+unsigned char BLTUART_RxBuffer[BLTUART_RX_BUFFER_SIZE] = {0};
+//串口接收数组指针
+unsigned char BLTUART_RxPtr;
 
 /// 配置USART接收中断
 static void NVIC_Configuration(void)
@@ -101,12 +105,9 @@ void BLTUsart_SendStr_length( USART_TypeDef * pUSARTx, uint8_t *str,uint32_t str
     } while(k < strlen);
 }
 
-
-
-
-
 /*****************  发送字符串 **********************/
-void BLTUsart_SendString( USART_TypeDef * pUSARTx, uint8_t *str)
+//void BLTUsart_SendString( USART_TypeDef * pUSARTx, uint8_t *str)
+void BLTUsart_SendString( USART_TypeDef * pUSARTx, char *str)
 {
 	unsigned int k=0;
     do 
@@ -116,54 +117,21 @@ void BLTUsart_SendString( USART_TypeDef * pUSARTx, uint8_t *str)
     } while(*(str + k)!='\0');
 }
 
-
-//中断缓存串口数据
-volatile    uint16_t uart_p = 0;
-unsigned char uart_buff[UART_BUFF_SIZE] = {0};
-u8 blurunflag;
-
-void bsp_USART_Process(void)
-{
-    unsigned char bludata;
-    if(USART_GetITStatus(BLT_USARTx, USART_IT_RXNE) != RESET)
-    {
-		bludata = USART_ReceiveData(BLT_USARTx);
-		if (uart_p < UART_BUFF_SIZE)
-		{
-			uart_buff[uart_p] = bludata;
-			uart_buff[uart_p + 1] = 0x00;
-			uart_p++;
-		}
-		else
-		{
-			USART_ClearITPendingBit(BLT_USARTx, USART_IT_RXNE);
-			clean_rebuff();       
-		}
-
-		if (35 == bludata)   //字符#结束
-		{
-			blurunflag = 1;	
-		}
-	}
-}
-
-
-
 //获取接收到的数据和长度
 char *get_rebuff(uint16_t *len) 
 {
-    *len = uart_p;
-    return (char *)&uart_buff;
+    *len = BLTUART_RxPtr;
+    return (char *)&BLTUART_RxBuffer;
 }
 
 //清空缓冲区
 void clean_rebuff(void)
 {
 
-    uint16_t i=UART_BUFF_SIZE+1;
-    uart_p = 0;
+    uint16_t i=BLTUART_RX_BUFFER_SIZE+1;
+    BLTUART_RxPtr = 0;
 	while(i)
-		uart_buff[--i]=0;
+		BLTUART_RxBuffer[--i]=0;
 
 }
 
